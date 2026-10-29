@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+config/database.local.php
+config/local.php
+*.log
+tmp/
