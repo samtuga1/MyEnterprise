@@ -7,3 +7,13 @@ config/database.local.php
 config/local.php
 *.log
 tmp/
+
+# MyEnterprise full stack
+backend/config/config.php
+backend/storage/ratelimit/*.json
+backend/storage/logs/*.log
+.taste-skill/
+shots/
+
+# Pixabay search cache and candidate thumbnails (tools/photos/pixabay.mjs)
+tools/photos/.cache/

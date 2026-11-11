@@ -1,0 +1,25 @@
+# MyEnterprise — Apache (XAMPP) rules for the public web root.
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # JSON API
+  RewriteRule ^api(/.*)?$ api/index.php [L,QSA]
+
+  # Real files (built JS/CSS, site artwork) are served as they are. Product
+  # pictures are not files: they come from the database through api/images/.
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # Every other address is a page of the React app.
+  RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+# Uploaded files are pictures only; never run them.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|svg|woff2|webp|jpg|png)$">
+    Header set X-Content-Type-Options "nosniff"
+  </FilesMatch>
+</IfModule>

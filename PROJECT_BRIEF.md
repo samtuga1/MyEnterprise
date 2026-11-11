@@ -1,13 +1,16 @@
 # MyEnterprise project brief
 
 ## Purpose and current state
-Build a fashion e-commerce database application supporting customers, product variants, orders, inventory across warehouses, procurement, payments, fulfillment, returns, refunds, and warranties. The group has conceptual and logical diagrams with 30 entities/tables. The local HTML/CSS/JavaScript frontend prototype is implemented with realistic mock records. Database, SQL routines, and PHP backend/connection work are explicitly deferred. See README.md for running the frontend and docs/FRONTEND_VERIFICATION.md for actual checks.
+Build a fashion e-commerce database application supporting customers, product variants, orders, inventory across warehouses, procurement, payments, fulfillment, returns, refunds, and warranties. The group's conceptual and logical diagrams define 30 entities/tables.
 
-This is primarily a database course project. The current authorized phase prioritizes a complete, interactive frontend shopping journey and admin workspace. The final project must still satisfy relational correctness, required SQL programming, useful reports, and PHP integration. Frontend simulations do not meet those later implementation requirements.
+As of 2026-11-07 the full stack is implemented:
+- **Database:** MariaDB schema, routines, triggers, views, generated sample data, the seven business queries, integrity checks and demonstrations (`database/`, explained in `docs/DATABASE.md`).
+- **Backend:** a plain-PHP JSON API that runs business operations through the stored procedures (`backend/`, `docs/API.md`).
+- **Interface:** a React storefront and admin built into `public/app/`.
 
-The user clarified on 2026-10-28 that the store is fashion only: clothing, shoes, and accessories. Earlier electronics references in the source materials are historical. This changes frontend fixtures and vocabulary, not the original 30-table database design. Variants use size/fit and color; specifications describe fabrics and care; compatibility is presented as outfit suggestions.
+The earlier HTML/JavaScript mock prototype was replaced and remains in git history. The sections below record the original planning; where they differ from the implementation, `docs/DATABASE.md` and `docs/DECISIONS.md` (2026-11-07 entry) describe what was built.
 
-Current presentation: violet and neutral styling, ordinary store wording, and dedicated administration at `/admin/` with its own login, without a storefront link or marketing hero. Customer sign-in/registration also use password fields with local prototype verification. Simulation details stay in project documentation; all data/services remain local mocks in this phase.
+The store is fashion only (user correction, 2026-10-28). Presentation: violet accent on warm neutral grounds, ordinary store wording, administration at `/admin` with its own sign-in and no storefront link.
 
 ## Confirmed group decisions
 - Four members, three shared roles.

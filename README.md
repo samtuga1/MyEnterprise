@@ -1,104 +1,102 @@
-# MyEnterprise — frontend prototype
+# MyEnterprise
 
-A local fashion-commerce school project built with HTML, CSS, and vanilla JavaScript. The complete customer journey and admin workspace share realistic, persistent mock records. **This phase contains no PHP backend, database connection, SQL, or real authentication/payment processing.** The original 30-table design is unchanged.
+A fashion shop with clothing, shoes, bags and accessories, built for COMP 5314 (Advanced Database Management Systems). It has three parts:
 
-## Run locally
+- **Database:** MariaDB/MySQL. 31 tables (the 30 of the diagram plus `ProductImage`, which stores the product pictures as binary data), 64 CHECK constraints, 9 triggers, 6 stored procedures (4 with cursors), 6 functions, 3 views, seven business queries and 23 integrity checks. Read `docs/DATABASE.md` first.
+- **Backend:** plain PHP 8 (no framework). A JSON API that runs every business operation through the stored procedures.
+- **Frontend:** React. A storefront (browse, bag, checkout, orders, returns, guarantee claims) and a separate admin at `/admin` (orders, stock, purchasing, returns, reports, and a live database explorer).
 
-From the project directory, with Python 3 installed:
+Payments, refunds and shipping are **simulated**: no card details are collected and nothing is charged. All people, addresses and labels in the sample data are fictional.
+
+## Run it on XAMPP
+
+You need XAMPP with PHP 8.1 or newer (tested with XAMPP 8.2.4 on macOS). Node.js is **not** needed: the built interface is already in `public/app/`.
+
+1. Copy this folder into XAMPP's `htdocs`:
+   - Windows: `C:\xampp\htdocs\MyEnterprise`
+   - macOS: `/Applications/XAMPP/xamppfiles/htdocs/MyEnterprise`
+2. Start **Apache** and **MySQL** in the XAMPP control panel.
+3. Import the database. Open http://localhost/phpmyadmin, go to **Import**, choose `database/myenterprise_full.sql`, and press **Go**. This creates a database named `myenterprise` with sample data.
+4. Open http://localhost/MyEnterprise/. The admin is at http://localhost/MyEnterprise/admin.
+
+If your MySQL root user has a password, or the database runs on another port, copy `backend/config/config.example.php` to `backend/config/config.php` and edit it. `config.php` is ignored by git.
+
+**Sample accounts** (fictional; the password for every account is `password1234`):
+
+| Where | Email |
+| --- | --- |
+| Shop | `demo@gmail.com` (a shopper with orders, a return and a guarantee claim) |
+| Admin, full access | `demo@gmail.com` |
+| Admin, other roles | `priya.nair@myenterprise.example` (operations), `marcus.bell@myenterprise.example` (catalog), `lena.ortiz@myenterprise.example` (customer care) |
+
+**Starting over:** import `database/reset/RESET_myenterprise_DESTRUCTIVE.sql`. It deletes the `myenterprise` database, including every order placed during testing, and rebuilds the sample data. Other databases are not touched.
+
+## Run it without Apache
+
+PHP has a built-in web server. With MySQL running and the database imported:
 
 ```sh
-python3 -m http.server 8080 --bind 127.0.0.1 --directory public
+php -S 127.0.0.1:8080 -t public public/router.php     # or: npm run serve
 ```
 
-Open **http://127.0.0.1:8080/**. Alternatively, `npm start` runs that same command. No `npm install`, build step, CDN, API key, or database is needed. Stop the server with Ctrl+C. If 8080 is occupied, choose another port; browser demo state is separate for each origin/port.
+Then open http://127.0.0.1:8080/.
 
-For XAMPP on macOS, copy this project to `/Applications/XAMPP/xamppfiles/htdocs/MyEnterprise`, start **Apache only**, and open **http://localhost/MyEnterprise/public/**. On Windows, the usual directory is `C:\xampp\htdocs\MyEnterprise`. MySQL is unnecessary. Keep all browser assets within `public/`; later configure Apache's document root to `public/` when adding private PHP configuration. Do not open `index.html` via `file://`: ES modules require an HTTP origin.
+## Develop the interface
 
-Use a current browser supporting ES modules, `structuredClone`, `<dialog>`, and localStorage. Node.js 18+ is needed only for the automated tests, not to serve the application with Python or XAMPP.
+```sh
+npm install
+npm run api      # PHP API on http://127.0.0.1:8000
+npm run dev      # React with live reload on http://localhost:5173 (forwards /api to PHP)
+npm run build    # writes the production interface to public/app/
+```
 
-## Explore
-
-- **Customer:** home → collection → product / variant → cart → checkout → confirmation → order history / detail → cancellation, return, or warranty request.
-- **Admin:** manually open `/admin/` (for example `http://127.0.0.1:8080/admin/`) for overview, products, categories, variants/specifications, inventory, suppliers/offers, purchase orders, allocations/fulfillment/shipments, returns/refunds, warranties, and seven business reports.
-- Customer routes use URL fragments such as `#/catalog` and `#/product/1`. Administration has a dedicated static directory at `/admin/`; internal pages use `/admin/#/admin/products`, etc. `/admin` redirects to `/admin/` automatically in Python/Apache. Under XAMPP, use `/MyEnterprise/public/admin/`. Older `#/admin/...` bookmarks redirect there. Apache rewrites are unnecessary. No customer-facing page links to administration.
-- Search matches product names, brands, descriptions, SKUs, and sizes/fits. Combine category, brand, maximum price, stock, and sort options; click **Apply filters**. Catalog pages contain eight products.
-- Cart quantities change after **Update**. Prices use integer cents. Delivery is free and demo tax is zero.
-- Guests who select **Continue to checkout** see an account-required dialog over the cart. **Create account** and **Sign in** open their respective screens and return to checkout after authentication; dismissing the dialog preserves the cart. Authentication remains simulated.
-- **Place order** validates shipping details, creates a local order, and reserves stock. The visible approved/declined payment test controls have been removed. The existing mock adapter still records an approved payment outcome internally; no payment gateway runs or money moves. Decline/rollback behavior remains covered by the isolated logic tests.
-- For development maintenance, open `/tools/reset.html` and choose **Restore fashion samples**. This control is outside storefront/admin navigation. Confirmation replaces only `myenterprise.frontend.v1` in this browser's localStorage. Other site storage and all files/databases remain untouched.
-
-The collection contains 16 fictional fashion products across tops, shoes, bottoms, outerwear, bags/accessories, and dresses. All product artwork is bundled locally. Sizes, material/care details, prices, and quality warranties are illustrative.
-
-If this browser has an earlier demo saved, it is preserved and a notice appears. **Reload the page first** (Cmd+Shift+R on macOS or Ctrl+Shift+R on Windows), then open `/tools/reset.html` and confirm **Restore fashion samples** to load the fashion fixtures. An already-open old page can still run the previous seed code; resetting data alone does not reload JavaScript. Reset removes this app’s saved demo orders and edits; it never happens automatically.
-
-## Frontend-only behavior and simulated identities
-
-The visible pages use ordinary store wording at the user’s request. Demo banners, environment notices, admin shortcuts, role switches, and payment-outcome controls are removed from product UI. This is a presentation change, not a backend implementation. All orders, accounts, refunds, shipments, purchases, and reports still use fictional local records. Do not deploy this as a working shop or enter real personal/payment information or reuse a real account password. Authentication and payment integration remain future backend work.
-
-
-Sign-in requires email and password. Fictional sample accounts for local testing:
-
-| Profile | Email | Sample password | Seed scenarios |
-| --- | --- | --- | --- |
-| Alex Morgan | `demo@gmail.com` | `password1234` | Delivered sneakers with an open return; processing tote order |
-| Jordan Lee | `jordan@example.com` | `StyleDemo!26` | Two delivered purchases; open coat quality warranty claim |
-| Sam Rivera | `sam@example.com` | `StyleDemo!26` | Paid, unallocated dress order |
-
-**Admin login:** `demo@gmail.com` / `password1234`. These credentials are public fictional fixtures, not production secrets.
-
-The primary customer and admin both use `demo@gmail.com` / `password1234`. Refresh to apply the account update; no reset is required. Other existing profiles created before passwords were added use `StyleDemo!26`; their carts, orders, and edits are preserved. The upgrade invalidates earlier passwordless sessions, so sign in again once. New profiles use the password chosen during registration.
-
-Registration creates another fictional profile. Customer registration requires an 8–128 character password and matching confirmation. Sign-in checks the saved local verifier. Administration at `/admin/` requires its own email/password login and supports sign-out without changing the customer session or cart. These role and ownership checks are UI simulations, not a security boundary: anyone can modify browser data. Never use real personal information. Switching customer identities preserves the browser's shared cart; **Sign out** clears it. This is a single-browser teaching fixture, not multiple independent customer accounts.
-
-## Admin actions
-
-1. Products: add/edit a product, assign a category, or archive it using the Active checkbox. Add variants, edit prices/sizes/colors/quality warranty policies, and add/edit/remove individual specifications. New variants start with zero stock.
-2. Inventory: filter by warehouse/low stock, adjust on-hand balances with a reason, and inspect recent movements. On-hand cannot fall below reserved stock.
-3. Suppliers: add/edit contacts, then create or update an offer (unit cost, lead time, minimum quantity). Purchase orders require a matching offer. Receive each order in full once to increase warehouse stock.
-4. Orders: **Allocate & prepare** creates missing warehouse allocations and moves Paid → Processing. **Create shipment** records tracking and deducts allocated stock. **Mark delivered** enables customer after-sales requests. New checkout orders are already reserved; preparation does not reserve twice.
-5. Returns: Requested → Approved → Received → Refunded, or reject before approval. Refunds are simulated and never exceed the paid order value. Received returns are not automatically put back into sellable stock.
-6. Warranties: Submitted → Under review → Resolved, or Rejected. Resolution records a demo status, not a real repair, replacement shipment, or warranty refund.
-7. Reports: choose one of seven questions and dates, then **Run report**. Reports recalculate from the same mock records. Low stock is a current snapshot, with a configurable threshold. Each report explains its date and financial definition.
+Use Node 18 or newer (developed with Node 22). If port 8000 is taken, run the API on another port and start the dev server with `API_TARGET=http://127.0.0.1:8010 npm run dev`.
 
 ## Project structure
 
 ```text
-public/
-  index.html                    # Customer entry point
-  admin/index.html              # Dedicated admin entry (no storefront header/hero)
-  tools/reset.html              # Confirmed development reset, outside product navigation
-  assets/css/styles.css         # Responsive violet-and-neutral theme
-  assets/images/*.svg           # Bundled product illustrations and fallback
-  assets/js/seed.js              # Fictional fixture records
-  assets/js/api.js               # Mock repository, validation, mutations, persistence
-  assets/js/auth.js              # Local Web Crypto password-verifier helper
-  assets/js/reports.js           # Seven mock report projections / metric definitions
-  assets/js/ui.js                # Escaping, formatting, accessible form/table helpers
-  assets/js/customer.js          # Customer page rendering
-  assets/js/admin.js             # Admin page rendering
-  assets/js/app.js               # Navigation, event handling, dialogs, shared layout
- tests/mock-api.test.js          # Node built-in tests; no dependencies
- docs/FRONTEND_BACKEND_CONTRACT.md
- docs/DECISIONS.md
- docs/FRONTEND_VERIFICATION.md
+database/              SQL: schema, functions, procedures, triggers, views, seed data,
+                       queries/ (the 7 business queries), verification, demonstrations, reset
+backend/               PHP API (not web-accessible)
+  routes.php           every endpoint and who may call it
+  src/Core/            router, request/response, PDO wrapper, sessions + CSRF, validation, rate limiting
+  src/Services/        catalogue, bag, order details
+  src/Controllers/     storefront and Admin/ controllers
+  config/              config.example.php (copy to config.php)
+public/                the web root
+  index.php            serves the React app for every page address
+  api/index.php        the API entry point
+  app/                 built React app (generated by npm run build)
+  media/               site artwork (hero photograph, fallback picture). Product pictures live in the database
+frontend/              React source: src/store (shop), src/admin (admin), src/shared (design system, API client)
+tools/                 seed generator, SQL builder, photo tool, logo sizes (brand/), artwork generator, ER diagram, screenshot tool
+tests/                 api.test.mjs (end-to-end against PHP + MariaDB), unit/ (fast checks)
+docs/                  DATABASE.md (start here), ER_DIAGRAM.md, API.md, VERIFICATION.md, original PDFs
 ```
 
-Rendering modules do not access localStorage. `api.js` is the replaceable data-access boundary. Future PHP integration must introduce awaited requests/loading states and perform all validation, ownership checks, authorization, stock locking, financial checks, and idempotency on the server. Browser checks alone are not sufficient. See the backend contract for original table mappings and missing fields.
+## Scripts
 
-## Verification
+| Command | What it does |
+| --- | --- |
+| `npm run build` | Builds the shop and the admin into `public/app/` |
+| `npm run seed` | Regenerates `database/06_seed_data.sql` and `06_seed_images.sql` (the pictures), then rebuilds the combined SQL files |
+| `npm run build:sql` | Rebuilds `myenterprise_full.sql`, `07_business_queries.sql` and the reset script from the numbered files |
+| `npm run art` | Regenerates the fallback product drawings in `tools/art/products/` (used only for a colour without a photograph; run `npm run seed` after) |
+| `node tools/photos/pixabay.mjs search\|explore\|pick` | Finds product photographs on Pixabay and prepares the chosen ones (`picks.json`) for the seed. Needs a key in `tools/photos/.env`; see the top of the file. Run `npm run seed` after `pick` |
+| `npm test` | Fast checks: SQL file structure, query files, frontend helpers |
+| `npm run test:api` | End-to-end API tests. **They change data:** run them against a disposable copy of the database (see the top of `tests/api.test.mjs`) |
+| `php tools/er-diagram.php` | Regenerates `docs/ER_DIAGRAM.md` from the installed schema |
 
-```sh
-npm test
-# or, without npm:
-node --test tests/*.test.js
-```
+## Security
 
-The tests use isolated in-memory storage, never the user's browser state. They cover successful/failed checkout, second-item rollback, quantities, simulated ownership, duplicate operations, fulfillment, receipts, refunds, warranty transitions, catalog edits, report calculations, storage failure, and escaping. See `docs/FRONTEND_VERIFICATION.md` for actual browser checks and limitations. No database import, SQL execution, or backend security tests have run in this frontend phase.
+The project applies these measures:
 
-The SQL course requirements remain future work; this frontend does not satisfy the assignment's database implementation requirements on its own.
+- **Passwords:** stored as bcrypt hashes (`password_hash`), and sign-in attempts are rate-limited.
+- **Sessions:** server-side, in an HttpOnly, SameSite=Lax cookie. Shopper and staff sign-ins are kept separately.
+- **CSRF:** every request that changes data must send the session's token.
+- **SQL:** every query uses real prepared statements, and all input is validated on the server.
+- **Admin roles:** the routes enforce them; the interface also hides actions a role cannot use.
+- **Uploads:** only real JPEG or PNG pictures are accepted. Each is re-encoded by GD (which drops anything hidden in the file, and the camera's EXIF data) and stored in the database, never as a file in the web root. Pictures are served with a `sandbox` Content-Security-Policy, so even an SVG opened directly cannot run script.
+- **Private folders:** `backend/`, `database/` and `tools/` are not served by Apache.
 
-## Password-flow implementation limits
-
-Only use fictional test passwords. Customer and admin sign-ins are asynchronous local flows, with masked fields, show/hide controls, required validation, and duplicate-submit prevention. Password verification uses Web Crypto PBKDF2/SHA-256 (100,000 iterations); newly registered profiles get a random 16-byte salt. Salt/hash/iterations are stored under the existing app storage key, never the password or confirmation. Public sample verifiers are bundled in seed.js. This avoids plaintext persistence but is **not secure backend authentication**: browser records, sessions, and code can be edited. There is no server session, identity verification, password recovery, production rate limiting, or email service. Run on localhost or HTTPS for Web Crypto.
-
-Admin sign-in lasts only for the open page and is never restored from localStorage. Reopening or refreshing `/admin/` requires signing in again; internal workspace navigation stays signed in. Legacy saved admin sessions are ignored, and data updates from another tab do not grant admin access. Admin pages redirect signed-out visitors to `/admin/#/admin/login`, retaining the requested page for return after login. A customer session does not authenticate as admin, and admin logout leaves the customer session/cart intact. Future PHP must replace all local verifiers with server-side password hashing and secure session/authorization controls.
+This is a school project. Before any real deployment you would still need HTTPS, a real payment provider, email delivery, and a database user with only the privileges the API needs.

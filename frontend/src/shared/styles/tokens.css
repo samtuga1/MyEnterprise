@@ -1,0 +1,98 @@
+/*
+ * MyEnterprise design tokens — one system for the storefront and the admin.
+ * Grounds, ink and type come from the taste-skill deal for a shop
+ * (palette "flour", Instrument Serif / Instrument Sans). The accent is the
+ * brand's deep violet, used only for the main action, focus, links and
+ * selected states; everything else stays neutral so the clothes carry colour.
+ */
+:root {
+  /* Grounds */
+  --bg: #f6f1e7;
+  --bg-alt: #efe8db;
+  --surface: #ebe3d4;
+  --paper: #fbf8f2;
+  --dark: #221c17;
+  --dark-2: #2f2721;
+
+  /* Ink */
+  --ink: #2b241e;
+  --ink-2: #4a4038;
+  --muted: #6f655b;
+  --on-dark: #f6f1e7;
+  --on-dark-muted: #c9bfb2;
+  --line: rgba(43, 36, 30, 0.13);
+  --line-strong: rgba(43, 36, 30, 0.26);
+
+  /* Brand accent (violet) */
+  --accent: #5b2b86;
+  --accent-hover: #4f2873;
+  --accent-ink: #ffffff;
+  --accent-soft: #ece3f4;
+  --accent-soft-2: #ddd0ec;
+  --accent-on-dark: #c9b6e4;
+
+  /* States */
+  --ok: #2e6a45;
+  --ok-soft: #e1eee3;
+  --warn: #8a5a0b;
+  --warn-soft: #f6e9cf;
+  --danger: #a3332b;
+  --danger-soft: #f6dfdb;
+  --info: #2c5b85;
+  --info-soft: #dfe8f1;
+
+  /* Type */
+  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-text: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --t-h1: clamp(42px, 4.4vw + 12px, 76px);
+  --t-h2: clamp(32px, 2.4vw + 16px, 50px);
+  --t-h3: clamp(20px, 0.5vw + 16px, 24px);
+  --t-lead: clamp(18px, 0.3vw + 16px, 20px);
+  --t-card: 17px;
+  --t-body: 16px;
+  --t-small: 14px;
+  --t-label: 13px;
+  --t-stat: clamp(28px, 1.2vw + 20px, 38px);
+
+  /* Spacing scale 4 … 128 */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px;
+
+  /* Rhythm */
+  --nav: 72px;
+  --gut: 80px;
+  --wrap: 1280px;
+  --gutter: 24px;
+  --padt: 120px;
+  --padb: 72px;
+
+  /* Radius (soft) */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-btn: 10px;
+  --r-pill: 999px;
+
+  /* Motion (taste-skill motion.md) */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --m-in: 150ms;
+  --m-out: 120ms;
+  --m-press: 90ms;
+  --m-panel: 200ms;
+  --m-slide: 240ms;
+  --m-image: 600ms;
+  --m-image-out: 400ms;
+
+  --shadow-pop: 0 24px 60px -24px rgba(43, 36, 30, 0.35), 0 2px 6px rgba(43, 36, 30, 0.06);
+  --shadow-card: 0 18px 40px -28px rgba(43, 36, 30, 0.45);
+}
+
+@media (max-width: 1023px) {
+  :root { --gut: 40px; --padt: 96px; }
+}
+@media (max-width: 639px) {
+  :root { --nav: 60px; --gut: 20px; --padt: 72px; --padb: 48px; }
+}

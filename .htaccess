@@ -1,0 +1,9 @@
+# MyEnterprise — when this folder sits inside XAMPP's htdocs, every request is
+# sent to public/, so http://localhost/MyEnterprise/ opens the shop and nothing
+# outside public/ (backend code, SQL, configuration) can be downloaded.
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^$ public/ [L]
+  RewriteRule ^((?!public/).*)$ public/$1 [L]
+</IfModule>
